@@ -91,7 +91,7 @@ wrangler pages deploy . --project-name=home-repair
 
 ### 公开接口
 - `GET /api/categories` — 分类目录
-- `GET /api/masters?category=&q=` — 师傅列表
+- `GET /api/masters?category=&q=&city=` — 师傅列表（响应含可用城市 `cities`）
 - `GET /api/masters/:code` — 师傅详情（含服务/证书/评价）
 - `GET /api/services/:code?category=` — 师傅服务列表
 - `GET /api/slots/:code?serviceId=&date=` — 可用时段
