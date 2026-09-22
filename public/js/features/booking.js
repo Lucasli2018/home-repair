@@ -537,6 +537,14 @@
         submit.disabled = false;
         submit.innerHTML = '<span data-icon="check"></span>提交预约';
         if (icons) icons.render(submit);
+        // 时段被抢（409）：所选时段已失效，自动回到选时间步骤并刷新时段
+        if (e.status === 409) {
+          state.selectedSlot = "";
+          state.slotsData = null;
+          toast("您选的时段刚被约满，请重新选择时间");
+          renderStep(2);
+          loadSlots();
+        }
       } finally {
         state.submitting = false;
       }

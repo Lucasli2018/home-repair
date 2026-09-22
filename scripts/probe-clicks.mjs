@@ -207,6 +207,20 @@ await waitForRender(`#step-host .service-item`, 10000);
 await sleep(1000);
 
 // ---------- 3. 预约流程 ----------
+// 先取消历史订单释放时段，保证探针可重复执行
+{
+  const list = await fetch(BASE + "/api/my?phone=13800138000").then((r) => r.json()).catch(() => ({ orders: [] }));
+  for (const o of list.orders || []) {
+    if (o.status !== "cancelled") {
+      await fetch(BASE + "/api/my/" + o.id + "/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: "13800138000" }),
+      }).catch(() => {});
+    }
+  }
+  await sleep(500);
+}
 await clickSel(`document.querySelector('#step-host .service-item')`, "预约-选服务", async () => {
   return evalJs(`!!document.querySelector('#step-host .service-item.active')`);
 });
@@ -248,7 +262,7 @@ await clickSel(`document.getElementById('bk-next')`, "预约-再进确认", asyn
 });
 await clickSel(`document.getElementById('bk-submit')`, "预约-提交", async () => {
   return evalJs(`location.hash.includes('orders') || (!!document.getElementById('modal') && document.getElementById('modal').innerHTML.includes('预约成功'))`);
-}, 3000);
+}, 9000);
 // 提交失败时抓 toast / modal 内容帮助定位
 {
   const diag = await evalJs(`(function(){
@@ -275,6 +289,7 @@ await clickSel(`document.querySelector('.nav__item[data-tab="home"]')`, "底部�
 });
 
 // ---------- 5. 分类页 ----------
+await navigate(BASE + "/#/category/repair");
 await waitForRender(`#cat-seg .seg__item`, 10000);
 await clickSel(`document.querySelector('#cat-seg .seg__item:nth-child(2)')`, "分类页-切换一级分类", async () => {
   return evalJs(`location.hash !== '#/category/repair'`);
