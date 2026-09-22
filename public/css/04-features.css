@@ -565,13 +565,14 @@
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  /* 堆在底部导航上方，且 z-index 必须高于 .nav(40)，否则整条操作栏被导航盖住点不到 */
+  bottom: calc(var(--nav-h) + var(--safe-bottom));
   max-width: var(--maxw);
   margin: 0 auto;
   background: var(--surface);
   border-top: 1px solid var(--line);
-  padding: var(--sp-3) var(--sp-4) calc(var(--sp-3) + var(--safe-bottom));
-  z-index: 30;
+  padding: var(--sp-3) var(--sp-4) var(--sp-3);
+  z-index: 45;
   display: flex;
   gap: var(--sp-3);
   align-items: center;
@@ -588,9 +589,9 @@
   font-weight: 400;
 }
 
-/* 有底部固定栏时主内容留空间 */
+/* 有底部固定栏时主内容留空间（导航高度 + 操作栏高度） */
 .app--has-bottom-bar {
-  padding-bottom: calc(var(--sp-4) + 72px + var(--safe-bottom));
+  padding-bottom: calc(var(--sp-4) + var(--nav-h) + 72px + var(--safe-bottom));
 }
 
 /* =========================================================

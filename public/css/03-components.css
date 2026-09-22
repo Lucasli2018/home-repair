@@ -134,9 +134,12 @@
   transition: opacity 0.28s ease;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
+  /* hidden 时元素仍在文档流之上，必须禁掉命中测试，否则整页按钮点不动 */
+  pointer-events: none;
 }
 .scrim:not([hidden]) {
   opacity: 1;
+  pointer-events: auto;
 }
 
 /* ===== modal (底部 sheet) ===== */
@@ -152,9 +155,12 @@
   transition: opacity 0.22s ease;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  /* hidden 时元素仍在文档流之上，必须禁掉命中测试，否则整页按钮点不动 */
+  pointer-events: none;
 }
 .overlay:not([hidden]) {
   opacity: 1;
+  pointer-events: auto;
 }
 .modal {
   width: 100%;
