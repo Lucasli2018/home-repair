@@ -1,0 +1,167 @@
+/* 01-tokens.css — 设计令牌（暖橙色板） */
+:root {
+  /* 主色 */
+  --accent: #ea580c;
+  --accent-strong: #c2410c;
+  --accent-soft: #fff7ed;
+  --accent-soft-2: #ffedd5;
+  --accent-line: #fed7aa;
+
+  /* 中性色 */
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --surface-2: #fafafa;
+  --surface-3: #f1f1f4;
+  --text: #1f2329;
+  --text-2: #4e5969;
+  --text-3: #86909c;
+  --text-4: #b6b8bf;
+  --line: #eef0f3;
+  --line-2: #e3e6eb;
+
+  /* 状态色 */
+  --ok: #16a34a;
+  --ok-soft: #dcfce7;
+  --warn: #f59e0b;
+  --warn-soft: #fef3c7;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --info: #2563eb;
+  --info-soft: #dbeafe;
+
+  /* 评分星 */
+  --star: #f59e0b;
+
+  /* 分类图标轮转 5 色 */
+  --cat-1: #dc2626;
+  --cat-1-soft: #fee2e2;
+  --cat-2: #0891b2;
+  --cat-2-soft: #cffafe;
+  --cat-3: #7c3aed;
+  --cat-3-soft: #ede9fe;
+  --cat-4: #475569;
+  --cat-4-soft: #e2e8f0;
+  --cat-5: #ea580c;
+  --cat-5-soft: #ffedd5;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(20, 20, 30, 0.04), 0 1px 1px rgba(20, 20, 30, 0.03);
+  --shadow-md: 0 4px 12px rgba(20, 20, 30, 0.06), 0 2px 4px rgba(20, 20, 30, 0.04);
+  --shadow-lg: 0 12px 32px rgba(20, 20, 30, 0.10), 0 4px 8px rgba(20, 20, 30, 0.04);
+  --shadow-top: 0 -2px 12px rgba(20, 20, 30, 0.06);
+
+  /* 圆角 */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  /* 字号 */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-28: 28px;
+
+  /* 间距 */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+
+  /* 尺寸 */
+  --topbar-h: 52px;
+  --nav-h: 60px;
+  --maxw: 480px;
+
+  /* 安全区 */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  /* 字体 */
+  --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei",
+    "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* 深色模式：用户在系统或本站偏好里启用 */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"],
+  :root:not([data-theme="light"]) {
+    --bg: #0f1115;
+    --surface: #1a1d24;
+    --surface-2: #20242c;
+    --surface-3: #2a2f38;
+    --text: #f5f6f8;
+    --text-2: #c7ccd4;
+    --text-3: #8b919c;
+    --text-4: #5a6068;
+    --line: #2a2f38;
+    --line-2: #353b46;
+
+    --accent-soft: #2a1607;
+    --accent-soft-2: #3a1f0d;
+    --accent-line: #4a2810;
+
+    --ok-soft: #0a2418;
+    --warn-soft: #2a1f08;
+    --danger-soft: #2a1010;
+    --info-soft: #0c1a2e;
+
+    --cat-1-soft: #2a1010;
+    --cat-2-soft: #0c1f29;
+    --cat-3-soft: #1c1230;
+    --cat-4-soft: #1a1f29;
+    --cat-5-soft: #2a1607;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+    --shadow-top: 0 -2px 12px rgba(0, 0, 0, 0.4);
+  }
+}
+
+/* 用户显式选择深色 */
+:root[data-theme="dark"] {
+  --bg: #0f1115;
+  --surface: #1a1d24;
+  --surface-2: #20242c;
+  --surface-3: #2a2f38;
+  --text: #f5f6f8;
+  --text-2: #c7ccd4;
+  --text-3: #8b919c;
+  --text-4: #5a6068;
+  --line: #2a2f38;
+  --line-2: #353b46;
+
+  --accent-soft: #2a1607;
+  --accent-soft-2: #3a1f0d;
+  --accent-line: #4a2810;
+
+  --ok-soft: #0a2418;
+  --warn-soft: #2a1f08;
+  --danger-soft: #2a1010;
+  --info-soft: #0c1a2e;
+
+  --cat-1-soft: #2a1010;
+  --cat-2-soft: #0c1f29;
+  --cat-3-soft: #1c1230;
+  --cat-4-soft: #1a1f29;
+  --cat-5-soft: #2a1607;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-top: 0 -2px 12px rgba(0, 0, 0, 0.4);
+}

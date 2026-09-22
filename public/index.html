@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#ea580c" />
+  <meta name="description" content="家修管家 — 家庭维修/家政预约平台" />
+  <title>家修管家</title>
+  <link rel="stylesheet" href="/css/01-tokens.css" />
+  <link rel="stylesheet" href="/css/02-base.css" />
+  <link rel="stylesheet" href="/css/03-components.css" />
+  <link rel="stylesheet" href="/css/04-features.css" />
+  <link rel="stylesheet" href="/css/05-system.css" />
+</head>
+<body>
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <button class="topbar__btn" id="btn-menu" aria-label="菜单">
+      <span data-icon="menu"></span>
+    </button>
+    <h1 class="topbar__title" id="topbar-title">家修管家</h1>
+    <button class="topbar__btn" id="btn-search" aria-label="搜索">
+      <span data-icon="search"></span>
+    </button>
+  </header>
+
+  <!-- 搜索 overlay -->
+  <div class="search-overlay" id="search-overlay" hidden>
+    <div class="search-overlay__bar">
+      <span class="search-overlay__icon" data-icon="search"></span>
+      <input type="search" id="search-input" placeholder="搜索师傅 / 服务" maxlength="40" />
+      <button id="search-submit">搜索</button>
+      <button id="search-close" aria-label="关闭">
+        <span data-icon="close"></span>
+      </button>
+    </div>
+    <div class="search-overlay__hint">输入师傅姓名、服务名称或技能标签</div>
+  </div>
+
+  <!-- 抽屉 -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer__head">
+      <div class="drawer__brand">家修管家</div>
+      <div class="drawer__slogan">省心 · 专业 · 上门服务</div>
+    </div>
+    <nav class="drawer__nav" id="drawer-nav"></nav>
+    <div class="drawer__foot">
+      <div class="drawer__version">v1.0 · 服务时间 8:00-22:00</div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <!-- 主内容容器 -->
+  <main class="app" id="app"></main>
+
+  <!-- 底部导航 -->
+  <nav class="nav" id="nav" aria-label="主导航"></nav>
+
+  <!-- 模态层 -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- toast -->
+  <div class="toast" id="toast" hidden></div>
+
+  <!-- 脚本（经典 script，按顺序加载） -->
+  <script src="/js/core/utils.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core/store.js"></script>
+  <script src="/js/core/router.js"></script>
+  <script src="/js/ui/icons.js"></script>
+  <script src="/js/ui/nav.js"></script>
+  <script src="/js/ui/drawer.js"></script>
+  <script src="/js/ui/modal.js"></script>
+  <script src="/js/features/home.js"></script>
+  <script src="/js/features/category.js"></script>
+  <script src="/js/features/master.js"></script>
+  <script src="/js/features/booking.js"></script>
+  <script src="/js/features/orders.js"></script>
+  <script src="/js/features/review.js"></script>
+  <script src="/js/features/profile.js"></script>
+  <script src="/js/boot.js"></script>
+</body>
+</html>

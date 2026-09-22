@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#ea580c" />
+  <meta name="description" content="家修管家 · 后台管理系统" />
+  <title>家修管家 · 后台管理</title>
+  <link rel="stylesheet" href="/css/01-tokens.css" />
+  <link rel="stylesheet" href="/css/02-base.css" />
+  <link rel="stylesheet" href="/css/03-components.css" />
+  <link rel="stylesheet" href="/css/04-features.css" />
+  <link rel="stylesheet" href="/css/05-system.css" />
+  <style>
+    /* ===== admin 覆盖样式：宽屏桌面布局 ===== */
+    html, body { max-width: none; }
+    body {
+      padding-top: calc(var(--topbar-h) + var(--safe-top));
+      padding-bottom: var(--sp-6);
+      background: var(--bg);
+      min-height: 100vh;
+    }
+    .topbar {
+      max-width: none;
+      grid-template-columns: 44px 1fr auto;
+      padding: 0 var(--sp-5);
+    }
+    .topbar__title { text-align: left; padding-left: var(--sp-2); }
+    .admin {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--sp-5) var(--sp-5) var(--sp-8);
+    }
+    .admin__login {
+      max-width: 420px;
+      margin: var(--sp-10) auto;
+    }
+    .admin__login h2 {
+      font-size: var(--fs-20);
+      margin-bottom: var(--sp-5);
+      text-align: center;
+    }
+    .admin__login .login-tip {
+      margin-top: var(--sp-4);
+      padding: var(--sp-3);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      border-radius: var(--r-md);
+      font-size: var(--fs-13);
+      text-align: center;
+    }
+    .admin__head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .admin__head h2 {
+      font-size: var(--fs-18);
+      font-weight: 600;
+    }
+    .admin__tabs {
+      position: sticky;
+      top: calc(var(--topbar-h) + var(--safe-top));
+      z-index: 30;
+      background: var(--bg);
+      padding: var(--sp-2) 0 var(--sp-3);
+      margin-bottom: var(--sp-2);
+    }
+    .admin__tabs .seg {
+      max-width: fit-content;
+    }
+    .admin__toolbar {
+      display: flex;
+      gap: var(--sp-2);
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: var(--sp-3);
+    }
+    .admin__toolbar .field {
+      margin: 0;
+      flex: 1 1 160px;
+      min-width: 140px;
+    }
+    .admin__toolbar .field__input {
+      padding: var(--sp-2) var(--sp-3);
+      font-size: var(--fs-14);
+    }
+    .admin__stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-4);
+    }
+    .admin__stat {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: var(--sp-3) var(--sp-4);
+    }
+    .admin__stat-label {
+      font-size: var(--fs-12);
+      color: var(--text-3);
+    }
+    .admin__stat-value {
+      font-size: var(--fs-20);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .admin__table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      font-size: var(--fs-13);
+    }
+    .admin__table th, .admin__table td {
+      padding: var(--sp-2) var(--sp-3);
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    .admin__table th {
+      background: var(--surface-2);
+      color: var(--text-2);
+      font-weight: 600;
+      font-size: var(--fs-12);
+      white-space: nowrap;
+    }
+    .admin__table tr:last-child td { border-bottom: none; }
+    .admin__table tr:hover td { background: var(--surface-2); }
+    .admin__table-wrap {
+      overflow-x: auto;
+      border-radius: var(--r-md);
+      border: 1px solid var(--line);
+    }
+    .admin__row-actions {
+      display: flex;
+      gap: var(--sp-1);
+      flex-wrap: wrap;
+    }
+    .admin__schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--sp-3);
+    }
+    .admin__schedule-day {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: var(--sp-3);
+    }
+    .admin__schedule-day.is-off { opacity: 0.6; }
+    .admin__schedule-day-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--sp-2);
+    }
+    .admin__schedule-day-name {
+      font-weight: 600;
+      font-size: var(--fs-14);
+    }
+    .admin__schedule-day .field { margin-bottom: var(--sp-2); }
+    .admin__schedule-day .field__label { font-size: var(--fs-12); }
+    .admin__schedule-day .field__input {
+      padding: 4px var(--sp-2);
+      font-size: var(--fs-13);
+    }
+    .admin__master-pick {
+      margin-bottom: var(--sp-4);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+    }
+    .admin__master-pick label {
+      font-size: var(--fs-13);
+      color: var(--text-2);
+    }
+    .admin__master-pick select {
+      padding: var(--sp-2) var(--sp-3);
+      border: 1px solid var(--line-2);
+      border-radius: var(--r-md);
+      background: var(--surface);
+      font-size: var(--fs-14);
+      min-width: 220px;
+    }
+    .admin__master-pick .btn { margin-left: auto; }
+    .admin__empty-row {
+      text-align: center;
+      padding: var(--sp-6);
+      color: var(--text-3);
+    }
+    .admin__toast {
+      position: fixed;
+      top: calc(var(--topbar-h) + var(--safe-top) + var(--sp-3));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(20, 20, 30, 0.92);
+      color: #fff;
+      padding: var(--sp-3) var(--sp-4);
+      border-radius: var(--r-md);
+      font-size: var(--fs-13);
+      z-index: 200;
+      max-width: 80vw;
+      text-align: center;
+      pointer-events: none;
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .admin__toast:not([hidden]) {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .admin__modal-form .field { margin-bottom: var(--sp-3); }
+    .admin__modal-form .field__input,
+    .admin__modal-form .field__textarea {
+      padding: var(--sp-2) var(--sp-3);
+      font-size: var(--fs-14);
+    }
+    .admin__modal-form .field__textarea { min-height: 70px; }
+    .admin__modal-actions {
+      display: flex;
+      gap: var(--sp-2);
+      justify-content: flex-end;
+      margin-top: var(--sp-4);
+    }
+    .admin__chips {
+      display: flex;
+      gap: var(--sp-1);
+      flex-wrap: wrap;
+      padding: var(--sp-2);
+      background: var(--surface-2);
+      border-radius: var(--r-md);
+      border: 1px solid var(--line);
+    }
+    .admin__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px var(--sp-2);
+      background: var(--surface);
+      border: 1px solid var(--line-2);
+      border-radius: var(--r-full);
+      font-size: var(--fs-12);
+    }
+    .admin__chip button {
+      width: 16px; height: 16px;
+      border-radius: var(--r-full);
+      color: var(--text-3);
+      font-size: 14px;
+      line-height: 1;
+    }
+    .admin__chip button:hover { color: var(--danger); }
+    .admin__account {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-size: var(--fs-13);
+      color: var(--text-2);
+    }
+    .admin__account .badge { font-size: var(--fs-11); }
+    @media (max-width: 640px) {
+      .admin { padding: var(--sp-3); }
+      .admin__table { font-size: var(--fs-12); }
+      .admin__table th, .admin__table td { padding: var(--sp-1) var(--sp-2); }
+      .admin__master-pick { flex-direction: column; align-items: stretch; }
+      .admin__master-pick .btn { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶栏 -->
+  <header class="topbar">
+    <button class="topbar__btn" id="btn-home" aria-label="返回前台" title="返回前台">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l9-9 9 9"/><path d="M5 10v10a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V10"/></svg>
+    </button>
+    <h1 class="topbar__title">家修管家 · 后台</h1>
+    <div class="admin__account" id="admin-account" hidden>
+      <span id="admin-account-name"></span>
+      <span class="badge" id="admin-account-role"></span>
+      <button class="btn btn--sm btn--ghost" id="btn-logout">登出</button>
+    </div>
+  </header>
+
+  <!-- 登录视图 -->
+  <main class="admin" id="admin-login">
+    <div class="card admin__login">
+      <h2>管理员登录</h2>
+      <form id="login-form">
+        <div class="field">
+          <label class="field__label" for="login-username">账号</label>
+          <input class="field__input" id="login-username" name="username" autocomplete="username" required placeholder="请输入账号" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="login-password">密码</label>
+          <input class="field__input" id="login-password" type="password" name="password" autocomplete="current-password" required placeholder="请输入密码" />
+        </div>
+        <button class="btn btn--primary btn--block btn--lg" type="submit">登录</button>
+      </form>
+      <div class="login-tip">默认账号 admin / admin123</div>
+    </div>
+  </main>
+
+  <!-- 已登录视图 -->
+  <main class="admin" id="admin-main" hidden>
+    <div class="admin__tabs">
+      <div class="seg" id="admin-seg">
+        <div class="seg__item active" data-tab="masters">师傅</div>
+        <div class="seg__item" data-tab="services">服务</div>
+        <div class="seg__item" data-tab="schedule">排班</div>
+        <div class="seg__item" data-tab="bookings">订单</div>
+        <div class="seg__item" data-tab="reviews">评价</div>
+      </div>
+    </div>
+    <div class="admin__content" id="admin-content"></div>
+  </main>
+
+  <!-- 模态层 -->
+  <div class="overlay" id="overlay" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- toast -->
+  <div class="admin__toast" id="toast" hidden></div>
+
+  <!-- 脚本 -->
+  <script src="/js/core/utils.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/core/store.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
