@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env }) {
   if (!username || !password) return fail("账号和密码必填");
 
   const account = await env.DB.prepare(
-    "SELECT * FROM admin_accounts WHERE username = ?"
+    "SELECT * FROM hr_admin_accounts WHERE username = ?"
   ).bind(username).first();
 
   // 恒定错误信息，避免账号枚举
@@ -32,11 +32,11 @@ export async function onRequestPost({ request, env }) {
 
   try {
     await env.DB.prepare(
-      "INSERT INTO admin_sessions(token, account_id, created_at, expires_at) VALUES (?,?,?,?)"
+      "INSERT INTO hr_admin_sessions(token, account_id, created_at, expires_at) VALUES (?,?,?,?)"
     ).bind(token, account.id, now, expires).run();
 
     await env.DB.prepare(
-      "UPDATE admin_accounts SET last_login_at = ? WHERE id = ?"
+      "UPDATE hr_admin_accounts SET last_login_at = ? WHERE id = ?"
     ).bind(now, account.id).run();
   } catch (err) {
     console.error("admin auth session insert failed:", err);

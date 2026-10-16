@@ -7,7 +7,7 @@ import { requireSuper } from "../_guard.js";
 const VALID_CATEGORIES = ["repair", "cleaning", "install", "other"];
 
 async function getService(env, id) {
-  return env.DB.prepare("SELECT * FROM services WHERE id = ?").bind(id).first();
+  return env.DB.prepare("SELECT * FROM hr_services WHERE id = ?").bind(id).first();
 }
 
 // ============ PUT 更新 ============
@@ -66,7 +66,7 @@ export async function onRequestPut({ request, env, params }) {
     binds.push(id);
     try {
       await env.DB.prepare(
-        `UPDATE services SET ${fields.join(", ")} WHERE id = ?`
+        `UPDATE hr_services SET ${fields.join(", ")} WHERE id = ?`
       ).bind(...binds).run();
     } catch (err) {
       console.error("admin services update failed:", err);
@@ -90,6 +90,6 @@ export async function onRequestDelete({ request, env, params }) {
   if (!svc) return fail("服务不存在", 404);
 
   // 关联的 bookings 也会因 ON DELETE CASCADE 被删除，避免悬空
-  await env.DB.prepare("DELETE FROM services WHERE id = ?").bind(id).run();
+  await env.DB.prepare("DELETE FROM hr_services WHERE id = ?").bind(id).run();
   return json({ message: "已删除", id });
 }

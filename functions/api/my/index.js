@@ -15,9 +15,9 @@ export async function onRequestGet({ request, env }) {
     b.customer_address, b.scheduled_at, b.duration_min, b.status, b.note, b.created_at,
     m.name AS master_name, m.code AS master_code, m.avatar_key AS master_avatar_key,
     s.name AS service_name, s.price_cents AS service_price_cents, s.category
-    FROM bookings b
-    JOIN masters m ON b.master_id = m.id
-    JOIN services s ON b.service_id = s.id
+    FROM hr_bookings b
+    JOIN hr_masters m ON b.master_id = m.id
+    JOIN hr_services s ON b.service_id = s.id
     WHERE b.customer_phone = ?`;
   const binds = [phone];
   if (status) {
@@ -36,7 +36,7 @@ export async function onRequestGet({ request, env }) {
   // 标记已评价
   for (const b of list) {
     const r = await env.DB.prepare(
-      "SELECT id, rating, content FROM reviews WHERE booking_id = ? AND hidden = 0"
+      "SELECT id, rating, content FROM hr_reviews WHERE booking_id = ? AND hidden = 0"
     ).bind(b.id).first();
     b.review = r || null;
   }

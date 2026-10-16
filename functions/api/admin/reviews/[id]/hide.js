@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env, params }) {
   if (!id) return fail("id 无效");
 
   const review = await env.DB.prepare(
-    "SELECT * FROM reviews WHERE id = ?"
+    "SELECT * FROM hr_reviews WHERE id = ?"
   ).bind(id).first();
   if (!review) return fail("评价不存在", 404);
 
@@ -28,14 +28,14 @@ export async function onRequestPost({ request, env, params }) {
   const newHidden = review.hidden ? 0 : 1;
   try {
     await env.DB.prepare(
-      "UPDATE reviews SET hidden = ? WHERE id = ?"
+      "UPDATE hr_reviews SET hidden = ? WHERE id = ?"
     ).bind(newHidden, id).run();
 
     // 重新聚合师傅评分（仅统计 hidden=0 的评价）
     await env.DB.prepare(
-      `UPDATE masters SET
-        rating_avg = (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE master_id = ? AND hidden = 0),
-        rating_count = (SELECT COUNT(*) FROM reviews WHERE master_id = ? AND hidden = 0),
+      `UPDATE hr_masters SET
+        rating_avg = (SELECT COALESCE(AVG(rating), 0) FROM hr_reviews WHERE master_id = ? AND hidden = 0),
+        rating_count = (SELECT COUNT(*) FROM hr_reviews WHERE master_id = ? AND hidden = 0),
         updated_at = datetime('now','+8 hours')
        WHERE id = ?`
     ).bind(review.master_id, review.master_id, review.master_id).run();

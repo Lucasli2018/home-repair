@@ -23,10 +23,10 @@ export async function onRequestGet({ request, env }) {
     m.name AS master_name, m.code AS master_code,
     b.scheduled_at AS booking_scheduled_at, b.service_id,
     s.name AS service_name
-    FROM reviews r
-    JOIN masters m ON r.master_id = m.id
-    JOIN bookings b ON r.booking_id = b.id
-    LEFT JOIN services s ON b.service_id = s.id
+    FROM hr_reviews r
+    JOIN hr_masters m ON r.master_id = m.id
+    JOIN hr_bookings b ON r.booking_id = b.id
+    LEFT JOIN hr_services s ON b.service_id = s.id
     WHERE 1=1`;
   const binds = [];
   if (masterId) {

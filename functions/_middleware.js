@@ -13,7 +13,7 @@ async function ensureDatabase(env) {
   if (dbReady || seeding) return;
   try {
     const result = await env.DB.prepare(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='masters'"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='hr_masters'"
     ).first();
     if (result) {
       dbReady = true;
@@ -46,13 +46,13 @@ async function ensureAccounts(env) {
   try {
     // 给没有账号的情况播种默认 super 账号 admin / admin123
     const cnt = await env.DB.prepare(
-      `SELECT COUNT(*) AS c FROM admin_accounts WHERE role = 'super'`
+      `SELECT COUNT(*) AS c FROM hr_admin_accounts WHERE role = 'super'`
     ).first();
     if (cnt && cnt.c === 0) {
       const salt = genSalt(16);
       const hash = await hashPassword("admin123", salt);
       await env.DB.prepare(
-        `INSERT OR IGNORE INTO admin_accounts(username, pass_hash, pass_salt, role, created_at)
+        `INSERT OR IGNORE INTO hr_admin_accounts(username, pass_hash, pass_salt, role, created_at)
          VALUES ('admin', ?, ?, 'super', datetime('now','+8 hours'))`
       ).bind(hash, salt).run();
       console.log("[middleware] 已播种默认管理员 admin / admin123");

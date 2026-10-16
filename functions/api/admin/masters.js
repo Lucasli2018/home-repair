@@ -20,7 +20,7 @@ export async function onRequestGet({ request, env }) {
   let sql = `SELECT id, code, name, avatar_key, bio, phone, city, district,
     rating_avg, rating_count, price_min_cents, price_max_cents, status, sort_order,
     created_at, updated_at
-    FROM masters WHERE 1=1`;
+    FROM hr_masters WHERE 1=1`;
   const binds = [];
   if (status) {
     sql += ` AND status = ?`;
@@ -38,13 +38,13 @@ export async function onRequestGet({ request, env }) {
   // 每个师傅附标签
   for (const m of list) {
     const tags = await env.DB.prepare(
-      "SELECT tag FROM master_tags WHERE master_id = ? ORDER BY tag"
+      "SELECT tag FROM hr_master_tags WHERE master_id = ? ORDER BY tag"
     ).bind(m.id).all();
     m.tags = (tags.results || []).map(t => t.tag);
   }
 
   // 总数
-  let cntSql = "SELECT COUNT(*) AS c FROM masters WHERE 1=1";
+  let cntSql = "SELECT COUNT(*) AS c FROM hr_masters WHERE 1=1";
   const cntBinds = [];
   if (status) { cntSql += " AND status = ?"; cntBinds.push(status); }
   const cnt = await env.DB.prepare(cntSql).bind(...cntBinds).first();
@@ -96,7 +96,7 @@ export async function onRequestPost({ request, env }) {
   let id;
   try {
     const result = await env.DB.prepare(
-      `INSERT INTO masters(code, name, bio, phone, city, district,
+      `INSERT INTO hr_masters(code, name, bio, phone, city, district,
         price_min_cents, price_max_cents, status, sort_order, created_at, updated_at)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`
     ).bind(code, name, bio, phone, city, district,
@@ -113,7 +113,7 @@ export async function onRequestPost({ request, env }) {
     for (const t of tags) {
       try {
         await env.DB.prepare(
-          "INSERT OR IGNORE INTO master_tags(master_id, tag) VALUES (?,?)"
+          "INSERT OR IGNORE INTO hr_master_tags(master_id, tag) VALUES (?,?)"
         ).bind(id, t).run();
       } catch (err) {
         console.error("tag insert failed:", err);

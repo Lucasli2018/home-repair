@@ -14,11 +14,11 @@ export async function onRequestGet({ request, env }) {
 
   let sql = `SELECT id, code, name, avatar_key, bio, city, district,
     rating_avg, rating_count, price_min_cents, price_max_cents, status, sort_order
-    FROM masters WHERE status = 'active'`;
+    FROM hr_masters WHERE status = 'active'`;
   const binds = [];
 
   if (category) {
-    sql += ` AND id IN (SELECT DISTINCT master_id FROM services WHERE category = ? AND active = 1)`;
+    sql += ` AND id IN (SELECT DISTINCT master_id FROM hr_services WHERE category = ? AND active = 1)`;
     binds.push(category);
   }
   if (city) {
@@ -26,7 +26,7 @@ export async function onRequestGet({ request, env }) {
     binds.push(city);
   }
   if (q) {
-    sql += ` AND (name LIKE ? OR bio LIKE ? OR id IN (SELECT master_id FROM master_tags WHERE tag LIKE ?))`;
+    sql += ` AND (name LIKE ? OR bio LIKE ? OR id IN (SELECT master_id FROM hr_master_tags WHERE tag LIKE ?))`;
     binds.push(`%${q}%`, `%${q}%`, `%${q}%`);
   }
   sql += ` ORDER BY rating_avg DESC, sort_order ASC LIMIT ? OFFSET ?`;
@@ -45,14 +45,14 @@ export async function onRequestGet({ request, env }) {
   // 补每个师傅的标签
   for (const m of list) {
     const tags = await env.DB.prepare(
-      "SELECT tag FROM master_tags WHERE master_id = ?"
+      "SELECT tag FROM hr_master_tags WHERE master_id = ?"
     ).bind(m.id).all();
     m.tags = (tags.results || []).map(t => t.tag);
   }
 
   // 可用城市列表（供前端筛选）
   const cityRows = await env.DB.prepare(
-    `SELECT DISTINCT city FROM masters WHERE status = 'active' ORDER BY city`
+    `SELECT DISTINCT city FROM hr_masters WHERE status = 'active' ORDER BY city`
   ).all();
   const cities = (cityRows.results || []).map(c => c.city);
 

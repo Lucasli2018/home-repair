@@ -13,7 +13,7 @@ export async function onRequestGet({ request, env, params }) {
   const category = url.searchParams.get("category") || "";
 
   let sql = `SELECT id, name, description, duration_min, price_cents, category, subcategory, sort_order
-    FROM services WHERE master_id = ? AND active = 1`;
+    FROM hr_services WHERE master_id = ? AND active = 1`;
   const binds = [m.id];
   if (category) {
     sql += ` AND category = ?`;

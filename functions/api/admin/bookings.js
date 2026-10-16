@@ -35,9 +35,9 @@ export async function onRequestGet({ request, env }) {
     b.confirmed_at, b.done_at, b.cancelled_at, b.rejected_at, b.created_at,
     m.name AS master_name, m.code AS master_code,
     s.name AS service_name, s.price_cents AS service_price_cents, s.category
-    FROM bookings b
-    JOIN masters m ON b.master_id = m.id
-    JOIN services s ON b.service_id = s.id
+    FROM hr_bookings b
+    JOIN hr_masters m ON b.master_id = m.id
+    JOIN hr_services s ON b.service_id = s.id
     WHERE 1=1`;
   const binds = [];
 
@@ -60,7 +60,7 @@ export async function onRequestGet({ request, env }) {
 
   // 今日统计（今日预约：scheduled_at 落在今日；按状态分组）
   const today = nowLocalString().slice(0, 10);
-  let statsSql = `SELECT b.status, COUNT(*) AS c FROM bookings b
+  let statsSql = `SELECT b.status, COUNT(*) AS c FROM hr_bookings b
     WHERE b.scheduled_at LIKE ?`;
   const statsBinds = [`${today}%`];
   if (masterId) {

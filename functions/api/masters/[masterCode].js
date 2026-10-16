@@ -11,23 +11,23 @@ export async function onRequestGet({ env, params }) {
 
   // 技能标签
   const tags = await env.DB.prepare(
-    "SELECT tag FROM master_tags WHERE master_id = ?"
+    "SELECT tag FROM hr_master_tags WHERE master_id = ?"
   ).bind(m.id).all();
 
   // 证书
   const certs = await env.DB.prepare(
-    "SELECT id, cert_key, title, sort_order FROM master_certificates WHERE master_id = ? ORDER BY sort_order"
+    "SELECT id, cert_key, title, sort_order FROM hr_master_certificates WHERE master_id = ? ORDER BY sort_order"
   ).bind(m.id).all();
 
   // 服务列表
   const svcs = await env.DB.prepare(
-    "SELECT id, name, description, duration_min, price_cents, category, subcategory, sort_order, active FROM services WHERE master_id = ? AND active = 1 ORDER BY sort_order"
+    "SELECT id, name, description, duration_min, price_cents, category, subcategory, sort_order, active FROM hr_services WHERE master_id = ? AND active = 1 ORDER BY sort_order"
   ).bind(m.id).all();
 
   // 最近 10 条评价
   const reviews = await env.DB.prepare(
     `SELECT r.id, r.customer_name, r.rating, r.content, r.created_at
-     FROM reviews r WHERE r.master_id = ? AND r.hidden = 0
+     FROM hr_reviews r WHERE r.master_id = ? AND r.hidden = 0
      ORDER BY r.created_at DESC LIMIT 10`
   ).bind(m.id).all();
 

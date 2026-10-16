@@ -6,8 +6,11 @@
 
 - **Cloudflare Pages** — 托管前端静态资源
 - **Pages Functions** — 后端 API（`/api/*`）
-- **D1** — 师傅/服务/订单/评价数据
+- **D1** — 师傅/服务/订单/评价数据（**共享 dev 库**，本项目表统一带 `hr_` 前缀）
 - **R2** — 师傅头像、证书图片
+
+> 数据源：Cloudflare **共享 dev 库**（`database_name=dev`，`database_id=3c83aee3-4645-450b-b50b-6488750deeb4`），
+> 多项目共用同一 D1 实例，本项目全部 9 张表以 `hr_` 前缀隔离（`hr_masters`/`hr_bookings`/…），互不冲突。
 
 > 注意：`schema.sql` 由 `scripts/gen-schema.mjs` 自动生成（建表 DDL + 基础种子 + 测试数据）。
 > 改表结构/种子请改 `functions/_shared/schema.js` 与 `functions/_shared/seed-test.js`，再跑 `node scripts/gen-schema.mjs` 重新生成，**勿手改 `schema.sql`**。
@@ -32,19 +35,18 @@ wrangler login
 
 ### 2. 创建 Cloudflare 资源
 
-在 Cloudflare Dashboard 创建：
-- **D1 数据库**：`home-repair-db`（记下 database_id）
-- **R2 存储桶**：`home-repair-images`
+- **D1 数据库**：使用**共享 dev 库**（`database_id=3c83aee3-4645-450b-b50b-6488750deeb4`，多项目共用，无需再创建）
+- **R2 存储桶**：`home-repair-images`（在 Dashboard 创建）
 
 ### 3. 配置 wrangler.toml
 
-编辑 `wrangler.toml`，把 `database_id` 换成你的实际值：
+`wrangler.toml` 已绑定共享 dev 库（`database_name = "dev"`），一般无需改动：
 
 ```toml
 [[d1_databases]]
 binding = "DB"
-database_name = "home-repair-db"
-database_id = "你的-D1-database-id"
+database_name = "dev"
+database_id = "3c83aee3-4645-450b-b50b-6488750deeb4"
 
 [[r2_buckets]]
 binding = "R2"
@@ -53,8 +55,14 @@ bucket_name = "home-repair-images"
 
 ### 4. 初始化生产数据库
 
+把 `schema.sql`（建表 + 基础种子 + 测试数据）应用到共享 dev 库，二选一：
+
 ```powershell
-wrangler d1 execute home-repair-db --remote --file=schema.sql
+# 方式一：REST API（读 Machine 级 CLOUDFLARE_API_TOKEN，自动自检表与行数）
+node scripts/init-d1.mjs
+
+# 方式二：wrangler
+wrangler d1 execute dev --remote --file=schema.sql
 ```
 
 ### 5. 本地开发
@@ -75,17 +83,23 @@ wrangler pages deploy . --project-name=home-repair
 
 ## 数据模型
 
+共享 dev 库中本项目表统一带 `hr_` 前缀：
+
 | 表 | 说明 |
 |----|------|
-| `masters` | 师傅主表（code/name/avatar/bio/phone/rating/price） |
-| `master_tags` | 技能标签（水电维修/深度保洁…） |
-| `master_certificates` | 证书图片（R2 key + title） |
-| `services` | 服务项目（category: repair/cleaning/install/other） |
-| `master_schedule` | 每周排班（weekday + opens_at + closes_at + slot_minutes + capacity） |
-| `bookings` | 预约（含 customer_address 上门地址，status: pending→confirmed→done） |
-| `reviews` | 评价（一单一评，UNIQUE(booking_id)，1-5 星） |
-| `admin_accounts` | 平台管理员（role: super/master） |
-| `admin_sessions` | 24h 会话 token |
+| `hr_masters` | 师傅主表（code/name/avatar/bio/phone/rating/price） |
+| `hr_master_tags` | 技能标签（水电维修/深度保洁…） |
+| `hr_master_certificates` | 证书图片（R2 key + title） |
+| `hr_services` | 服务项目（category: repair/cleaning/install/other） |
+| `hr_master_schedule` | 每周排班（weekday + opens_at + closes_at + slot_minutes + capacity） |
+| `hr_bookings` | 预约（含 customer_address 上门地址，status: pending→confirmed→done） |
+| `hr_reviews` | 评价（一单一评，UNIQUE(booking_id)，1-5 星） |
+| `hr_admin_accounts` | 平台管理员（role: super/master） |
+| `hr_admin_sessions` | 24h 会话 token |
+
+> 测试数据（`functions/_shared/seed-test.js` → `schema.sql`）：6 位师傅 / 17 项服务 / 42 条排班 /
+> 16 条预约单（done 8、confirmed 3、pending 3、cancelled 1、rejected 1）/ 8 条评价。
+> 改测试数据后重跑 `node scripts/gen-schema.mjs && node scripts/init-d1.mjs`。
 
 ## API 概览
 
@@ -121,11 +135,11 @@ wrangler pages deploy . --project-name=home-repair
 
 ```
 home-repair/
-├── wrangler.toml              # Cloudflare Pages 配置
-├── schema.sql                 # D1 全量建表 + seed
+├── wrangler.toml              # Cloudflare Pages 配置（D1 绑共享 dev 库）
+├── schema.sql                 # D1 全量建表 + seed（hr_ 前缀，gen-schema.mjs 生成）
 ├── functions/                  # Pages Functions 后端
 │   ├── _middleware.js          # CORS + 首访建表 + seed
-│   ├── _shared/                # 共享工具
+│   ├── _shared/                # 共享工具（schema.js 单一数据源）
 │   └── api/                    # API 路由
 │       ├── categories.js
 │       ├── masters/
@@ -135,6 +149,9 @@ home-repair/
 │       ├── my/
 │       ├── image/
 │       └── admin/              # 后台 API
+├── scripts/
+│   ├── gen-schema.mjs          # 由 _shared/schema.js + seed-test.js 生成 schema.sql
+│   └── init-d1.mjs             # 把 schema.sql 应用到共享 dev 库（REST，含自检）
 └── public/                     # 前端
     ├── index.html              # 用户端 SPA
     ├── admin.html              # 后台

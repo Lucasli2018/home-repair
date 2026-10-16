@@ -21,8 +21,9 @@ try {
 }
 
 const HEADER = `-- home-repair D1 初始化 schema（由 scripts/gen-schema.mjs 自动生成，请勿手改）
--- 建表 + 基础种子 + 测试数据。
--- 全新库：        wrangler d1 execute home-repair-db --remote --file=schema.sql
+-- 建表 + 基础种子 + 测试数据。数据源：共享 dev 库（多项目共用，本项目表统一带 hr_ 前缀）。
+-- 全新库：        wrangler d1 execute dev --remote --file=schema.sql
+-- 或走 REST：     node scripts/init-d1.mjs（读 Machine 级 CLOUDFLARE_API_TOKEN）
 -- 本地开发无需执行（_middleware 首访自动建表 + 基础种子）
 
 `;

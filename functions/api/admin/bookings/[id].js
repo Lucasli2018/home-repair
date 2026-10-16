@@ -25,7 +25,7 @@ export async function onRequestPost({ request, env, params }) {
   if (!ACTION_MAP[action]) return fail("action 必须为 confirmed/rejected/done/cancelled");
 
   const booking = await env.DB.prepare(
-    "SELECT * FROM bookings WHERE id = ?"
+    "SELECT * FROM hr_bookings WHERE id = ?"
   ).bind(id).first();
   if (!booking) return fail("订单不存在", 404);
 
@@ -51,14 +51,14 @@ export async function onRequestPost({ request, env, params }) {
   const now = nowLocalString();
   try {
     await env.DB.prepare(
-      `UPDATE bookings SET status = ?, ${target.at} = ?, updated_at = ? WHERE id = ?`
+      `UPDATE hr_bookings SET status = ?, ${target.at} = ?, updated_at = ? WHERE id = ?`
     ).bind(target.status, now, now, id).run();
   } catch (err) {
     console.error("admin booking update failed:", err);
     return fail("更新失败", 500);
   }
 
-  const fresh = await env.DB.prepare("SELECT * FROM bookings WHERE id = ?").bind(id).first();
+  const fresh = await env.DB.prepare("SELECT * FROM hr_bookings WHERE id = ?").bind(id).first();
   return json({
     booking: fresh,
     message: `已${actionLabel(action)}`,

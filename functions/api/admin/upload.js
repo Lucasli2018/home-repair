@@ -2,7 +2,7 @@
 // 字段：file + kind(avatar|cert) + masterId + title(证书标题，kind=cert 时)
 // 限制 ≤5MB，jpg/png/webp
 // 生成扁平 key: master-<code>-<kind>-<ts>-<rand>.<ext>
-// kind=avatar 时 UPDATE masters.avatar_key
+// kind=avatar 时 UPDATE hr_masters.avatar_key
 // kind=cert 时 INSERT master_certificates
 // 返回 { key, url: /api/image/<key> }
 
@@ -41,7 +41,7 @@ export async function onRequestPost({ request, env }) {
   if (kind === "cert" && !title) return fail("上传证书需提供 title");
 
   const master = await env.DB.prepare(
-    "SELECT id, code, avatar_key FROM masters WHERE id = ?"
+    "SELECT id, code, avatar_key FROM hr_masters WHERE id = ?"
   ).bind(masterId).first();
   if (!master) return fail("师傅不存在", 404);
 
@@ -84,7 +84,7 @@ export async function onRequestPost({ request, env }) {
     }
     try {
       await env.DB.prepare(
-        "UPDATE masters SET avatar_key = ?, updated_at = datetime('now','+8 hours') WHERE id = ?"
+        "UPDATE hr_masters SET avatar_key = ?, updated_at = datetime('now','+8 hours') WHERE id = ?"
       ).bind(key, masterId).run();
     } catch (err) {
       console.error("update avatar_key failed:", err);
@@ -98,7 +98,7 @@ export async function onRequestPost({ request, env }) {
   // kind === "cert"
   try {
     const result = await env.DB.prepare(
-      "INSERT INTO master_certificates(master_id, cert_key, title, sort_order) VALUES (?,?,?,?)"
+      "INSERT INTO hr_master_certificates(master_id, cert_key, title, sort_order) VALUES (?,?,?,?)"
     ).bind(masterId, key, title, 0).run();
     const certId = result.meta.last_row_id;
     return json({

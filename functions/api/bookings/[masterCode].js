@@ -39,7 +39,7 @@ export async function onRequestPost({ request, env, params }) {
 
   // 校验服务存在
   const service = await env.DB.prepare(
-    "SELECT * FROM services WHERE id = ? AND master_id = ? AND active = 1"
+    "SELECT * FROM hr_services WHERE id = ? AND master_id = ? AND active = 1"
   ).bind(serviceId, m.id).first();
   if (!service) return fail("服务不存在", 404);
 
@@ -47,7 +47,7 @@ export async function onRequestPost({ request, env, params }) {
   const date = scheduledAt.slice(0, 10);
   const time = scheduledAt.slice(11);
   const schedule = await env.DB.prepare(`
-    SELECT * FROM master_schedule
+    SELECT * FROM hr_master_schedule
     WHERE master_id = ? AND weekday = strftime('%w', ?) AND active = 1
   `).bind(m.id, date).first();
   if (!schedule) return fail("该日师傅不接单");
@@ -62,18 +62,18 @@ export async function onRequestPost({ request, env, params }) {
   try {
     const end = addMinutes(scheduledAt, service.duration_min);
     const result = await env.DB.prepare(`
-      INSERT INTO bookings
+      INSERT INTO hr_bookings
         (master_id, service_id, customer_name, customer_phone,
          customer_address, scheduled_at, duration_min, status, note, customer_email)
       SELECT ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?
       WHERE (
-        SELECT COUNT(*) FROM bookings b
+        SELECT COUNT(*) FROM hr_bookings b
         WHERE b.master_id = ?
           AND b.status IN ('pending','confirmed','done')
           AND b.scheduled_at < ?
           AND datetime(b.scheduled_at, '+' || b.duration_min || ' minutes') > ?
       ) < (
-        SELECT COALESCE(MAX(capacity), 1) FROM master_schedule
+        SELECT COALESCE(MAX(capacity), 1) FROM hr_master_schedule
         WHERE master_id = ? AND weekday = strftime('%w', ?) AND active = 1
       )
     `).bind(

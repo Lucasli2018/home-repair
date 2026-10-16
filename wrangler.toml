@@ -9,10 +9,11 @@ compatibility_date = "2025-06-01"
 compatibility_flags = ["nodejs_compat"]
 
 # D1 数据库绑定（本地名 DB，对应后端 env.DB）
+# 共享 dev 库（多项目共用，本项目表统一带 hr_ 前缀，互不冲突）
 [[d1_databases]]
 binding = "DB"
-database_name = "home-repair-db"
-database_id = "7b9a9e57-7e4c-4033-b3ae-b2d314fc5e58"
+database_name = "dev"
+database_id = "3c83aee3-4645-450b-b50b-6488750deeb4"
 
 # R2 存储绑定（本地名 R2，对应后端 env.R2）
 [[r2_buckets]]

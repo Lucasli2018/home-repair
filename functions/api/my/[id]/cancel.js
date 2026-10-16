@@ -12,7 +12,7 @@ export async function onRequestPost({ request, env, params }) {
   if (!phone) return fail("缺少 phone");
 
   const booking = await env.DB.prepare(
-    "SELECT * FROM bookings WHERE id = ? AND customer_phone = ?"
+    "SELECT * FROM hr_bookings WHERE id = ? AND customer_phone = ?"
   ).bind(id, phone).first();
   if (!booking) return fail("订单不存在或无权操作", 404);
 
@@ -22,7 +22,7 @@ export async function onRequestPost({ request, env, params }) {
 
   const now = nowLocalString();
   await env.DB.prepare(
-    `UPDATE bookings SET status = 'cancelled', cancelled_at = ?, updated_at = ? WHERE id = ?`
+    `UPDATE hr_bookings SET status = 'cancelled', cancelled_at = ?, updated_at = ? WHERE id = ?`
   ).bind(now, now, id).run();
 
   return json({ message: "已取消", id, status: "cancelled" });

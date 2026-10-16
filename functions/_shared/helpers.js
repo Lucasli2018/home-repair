@@ -23,7 +23,7 @@ export async function readJson(request) {
 // ============ 师傅校验 ============
 export async function getMaster(env, masterCode) {
   if (!masterCode || typeof masterCode !== "string") return null;
-  return env.DB.prepare("SELECT * FROM masters WHERE code = ?")
+  return env.DB.prepare("SELECT * FROM hr_masters WHERE code = ?")
     .bind(masterCode).first();
 }
 
@@ -49,19 +49,19 @@ export async function requireSession(env, request) {
   if (!token) return { error: "未登录", status: 401 };
 
   const session = await env.DB.prepare(
-    "SELECT * FROM admin_sessions WHERE token = ?"
+    "SELECT * FROM hr_admin_sessions WHERE token = ?"
   ).bind(token).first();
 
   if (!session) return { error: "会话无效", status: 401 };
 
   const now = new Date().toISOString().slice(0, 19).replace("T", " ");
   if (session.expires_at < now) {
-    await env.DB.prepare("DELETE FROM admin_sessions WHERE token = ?")
+    await env.DB.prepare("DELETE FROM hr_admin_sessions WHERE token = ?")
       .bind(token).run();
     return { error: "会话已过期", status: 401 };
   }
 
-  const account = await env.DB.prepare("SELECT * FROM admin_accounts WHERE id = ?")
+  const account = await env.DB.prepare("SELECT * FROM hr_admin_accounts WHERE id = ?")
     .bind(session.account_id).first();
   if (!account) return { error: "账户不存在", status: 401 };
 

@@ -6,7 +6,7 @@ import { json, fail, readJson, nowLocalString } from "../../../_shared/helpers.j
 import { requireSuper } from "../_guard.js";
 
 async function getMaster(env, id) {
-  return env.DB.prepare("SELECT * FROM masters WHERE id = ?").bind(id).first();
+  return env.DB.prepare("SELECT * FROM hr_masters WHERE id = ?").bind(id).first();
 }
 
 // ============ GET 详情 ============
@@ -21,18 +21,18 @@ export async function onRequestGet({ request, env, params }) {
   if (!m) return fail("师傅不存在", 404);
 
   const tags = await env.DB.prepare(
-    "SELECT tag FROM master_tags WHERE master_id = ? ORDER BY tag"
+    "SELECT tag FROM hr_master_tags WHERE master_id = ? ORDER BY tag"
   ).bind(id).all();
   const certs = await env.DB.prepare(
-    "SELECT id, cert_key, title, sort_order FROM master_certificates WHERE master_id = ? ORDER BY sort_order, id"
+    "SELECT id, cert_key, title, sort_order FROM hr_master_certificates WHERE master_id = ? ORDER BY sort_order, id"
   ).bind(id).all();
   const services = await env.DB.prepare(
     `SELECT id, name, description, duration_min, price_cents, category, subcategory, sort_order, active
-     FROM services WHERE master_id = ? ORDER BY sort_order, id`
+     FROM hr_services WHERE master_id = ? ORDER BY sort_order, id`
   ).bind(id).all();
   const schedule = await env.DB.prepare(
     `SELECT id, weekday, opens_at, closes_at, slot_minutes, capacity, active
-     FROM master_schedule WHERE master_id = ? ORDER BY weekday`
+     FROM hr_master_schedule WHERE master_id = ? ORDER BY weekday`
   ).bind(id).all();
 
   return json({
@@ -119,7 +119,7 @@ export async function onRequestPut({ request, env, params }) {
     binds.push(id);
     try {
       await env.DB.prepare(
-        `UPDATE masters SET ${fields.join(", ")} WHERE id = ?`
+        `UPDATE hr_masters SET ${fields.join(", ")} WHERE id = ?`
       ).bind(...binds).run();
     } catch (err) {
       if (String(err).includes("UNIQUE")) return fail("code 已存在", 409);
@@ -134,11 +134,11 @@ export async function onRequestPut({ request, env, params }) {
       .map(t => String(t).trim())
       .filter(t => t && t.length <= 20)
       .slice(0, 20);
-    await env.DB.prepare("DELETE FROM master_tags WHERE master_id = ?").bind(id).run();
+    await env.DB.prepare("DELETE FROM hr_master_tags WHERE master_id = ?").bind(id).run();
     for (const t of newTags) {
       try {
         await env.DB.prepare(
-          "INSERT OR IGNORE INTO master_tags(master_id, tag) VALUES (?,?)"
+          "INSERT OR IGNORE INTO hr_master_tags(master_id, tag) VALUES (?,?)"
         ).bind(id, t).run();
       } catch (err) {
         console.error("tag insert failed:", err);
@@ -171,14 +171,14 @@ export async function onRequestDelete({ request, env, params }) {
     try { await env.R2.delete(m.avatar_key); } catch (e) { /* ignore */ }
   }
   const certs = await env.DB.prepare(
-    "SELECT cert_key FROM master_certificates WHERE master_id = ?"
+    "SELECT cert_key FROM hr_master_certificates WHERE master_id = ?"
   ).bind(id).all();
   for (const c of (certs.results || [])) {
     try { await env.R2.delete(c.cert_key); } catch (e) { /* ignore */ }
   }
 
   // ON DELETE CASCADE 自动清理 tags/services/schedule/bookings/reviews
-  await env.DB.prepare("DELETE FROM masters WHERE id = ?").bind(id).run();
+  await env.DB.prepare("DELETE FROM hr_masters WHERE id = ?").bind(id).run();
 
   return json({ message: "已删除", id });
 }

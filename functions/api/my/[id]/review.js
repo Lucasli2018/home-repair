@@ -17,7 +17,7 @@ export async function onRequestPost({ request, env, params }) {
   if (!rating || rating < 1 || rating > 5) return fail("评分 1-5 分");
 
   const booking = await env.DB.prepare(
-    "SELECT * FROM bookings WHERE id = ? AND customer_phone = ?"
+    "SELECT * FROM hr_bookings WHERE id = ? AND customer_phone = ?"
   ).bind(id, phone).first();
   if (!booking) return fail("订单不存在或无权操作", 404);
 
@@ -25,22 +25,22 @@ export async function onRequestPost({ request, env, params }) {
 
   // 检查是否已评过
   const existed = await env.DB.prepare(
-    "SELECT id FROM reviews WHERE booking_id = ?"
+    "SELECT id FROM hr_reviews WHERE booking_id = ?"
   ).bind(id).first();
   if (existed) return fail("该订单已评价过");
 
   try {
     // 插入评价（UNIQUE(booking_id) 兜底防重）
     const result = await env.DB.prepare(
-      `INSERT INTO reviews(booking_id, master_id, customer_name, rating, content)
+      `INSERT INTO hr_reviews(booking_id, master_id, customer_name, rating, content)
        VALUES (?, ?, ?, ?, ?)`
     ).bind(id, booking.master_id, maskName(booking.customer_name), rating, content).run();
 
     // 聚合更新师傅评分
     await env.DB.prepare(
-      `UPDATE masters SET
-        rating_avg = (SELECT COALESCE(AVG(rating), 0) FROM reviews WHERE master_id = ? AND hidden = 0),
-        rating_count = (SELECT COUNT(*) FROM reviews WHERE master_id = ? AND hidden = 0),
+      `UPDATE hr_masters SET
+        rating_avg = (SELECT COALESCE(AVG(rating), 0) FROM hr_reviews WHERE master_id = ? AND hidden = 0),
+        rating_count = (SELECT COUNT(*) FROM hr_reviews WHERE master_id = ? AND hidden = 0),
         updated_at = datetime('now','+8 hours')
        WHERE id = ?`
     ).bind(booking.master_id, booking.master_id, booking.master_id).run();

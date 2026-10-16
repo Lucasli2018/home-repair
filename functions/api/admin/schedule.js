@@ -17,13 +17,13 @@ export async function onRequestGet({ request, env }) {
   if (!masterId) return fail("缺少 masterId 参数");
 
   const master = await env.DB.prepare(
-    "SELECT id, code, name FROM masters WHERE id = ?"
+    "SELECT id, code, name FROM hr_masters WHERE id = ?"
   ).bind(masterId).first();
   if (!master) return fail("师傅不存在", 404);
 
   const rows = await env.DB.prepare(
     `SELECT id, weekday, opens_at, closes_at, slot_minutes, capacity, active
-     FROM master_schedule WHERE master_id = ? ORDER BY weekday`
+     FROM hr_master_schedule WHERE master_id = ? ORDER BY weekday`
   ).bind(masterId).all();
 
   const found = new Map();
@@ -70,12 +70,12 @@ export async function onRequestPost({ request, env }) {
   if (!VALID_SLOTS.includes(slotMinutes)) return fail("slotMinutes 必须为 30/60/90/120");
   if (!capacity || capacity < 1 || capacity > 5) return fail("capacity 必须为 1-5");
 
-  const master = await env.DB.prepare("SELECT id FROM masters WHERE id = ?").bind(masterId).first();
+  const master = await env.DB.prepare("SELECT id FROM hr_masters WHERE id = ?").bind(masterId).first();
   if (!master) return fail("师傅不存在", 404);
 
   try {
     await env.DB.prepare(
-      `INSERT OR REPLACE INTO master_schedule
+      `INSERT OR REPLACE INTO hr_master_schedule
         (master_id, weekday, opens_at, closes_at, slot_minutes, capacity, active)
        VALUES (?,?,?,?,?,?,?)`
     ).bind(masterId, weekday, opensAt, closesAt, slotMinutes, capacity, active).run();
@@ -85,7 +85,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   const row = await env.DB.prepare(
-    "SELECT * FROM master_schedule WHERE master_id = ? AND weekday = ?"
+    "SELECT * FROM hr_master_schedule WHERE master_id = ? AND weekday = ?"
   ).bind(masterId, weekday).first();
 
   return json({ schedule: row });
